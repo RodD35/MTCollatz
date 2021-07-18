@@ -1,54 +1,35 @@
-import java.lang.Thread;
-import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.time.Instant;
 
-class Collatz extends Thread{
-	private int number;
+class MTCollatz {
+	protected static int RANGE;
+	protected static int COUNT = 2;
+	protected static int[] STOP_TIMES;
+	protected static Lock lock = new ReentrantLock();
 	
-	public Collatz() {}
-	
-	public Collatz(int num) {
-		this.number = num;
-	}
-	
-	public void run() {
-		while(this.number > 1) {
-			
-		}
-	}
-
-}
-
-public class MTCollatz {
-	//protected static int COUNTER = 1;
-
-	public static int CollatzCount(int num) {
-		int stopTime = 0;
-		while(num > 1) {
-			if(num % 2 == 0){
-				num /= 2;
-			}else {
-				num = num*3 + 1;
-			}
-			stopTime++;
-		}
-		return stopTime;
-	}
-
 	public static void main(String[] args) {
-		int count = 1;
-		int upperBound = Integer.parseInt(args[0]);
-		int stopTimes[] = new int[upperBound];
-		long start = Instant.now().toEpochMilli();
-		while(count <= upperBound) {
-			int num = count;
-			stopTimes[count - 1] = CollatzCount(num);
-			System.out.println("Stop time for " + count + ": " + stopTimes[count - 1]);
-			count++;
-		}
-		long finish = Instant.now().toEpochMilli();
-		System.out.println("Time alotted: " + (finish - start) + "ms");
+		RANGE = Integer.parseInt(args[0]);
+		STOP_TIMES = new int[RANGE];
+		STOP_TIMES[0] = 0;
+		int threadCount = Integer.parseInt(args[1]);
+		Collatz[] thread_array = new Collatz[threadCount];
 		
+		long start = Instant.now().toEpochMilli();
+		
+		for(Collatz t: thread_array) {
+			t = new Collatz();
+			t.start();
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		long finish = Instant.now().toEpochMilli();
+		
+		System.out.println(String.format("%d,%d,%d", RANGE, threadCount, (finish-start)));
 	}
 
 }
